@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คู่มือการสร้าง Vendor User ฝั่ง Staff — CNY VMSS</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f172a; color: #fff; overflow: hidden; }
+
+  .slideshow { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: none; flex-direction: column;
+    padding: 40px 60px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  }
+  .slide.active { display: flex; }
+
+  /* Cover */
+  .slide-cover {
+    align-items: center; justify-content: center; text-align: center;
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+  }
+  .slide-cover .logo {
+    width: 80px; height: 80px; background: #16a34a;
+    border-radius: 20px; display: flex; align-items: center; justify-content: center;
+    font-size: 36px; font-weight: 900; margin: 0 auto 24px;
+  }
+  .slide-cover h1 { font-size: 40px; font-weight: 800; color: #fff; margin-bottom: 12px; }
+  .slide-cover .subtitle { font-size: 20px; color: #94a3b8; margin-bottom: 8px; }
+  .slide-cover .badge {
+    display: inline-block; background: #16a34a; color: #fff;
+    padding: 6px 20px; border-radius: 999px; font-size: 14px; margin-top: 20px;
+  }
+
+  /* Content */
+  .slide-header {
+    display: flex; align-items: center; gap: 16px;
+    border-bottom: 2px solid #16a34a; padding-bottom: 16px; margin-bottom: 28px;
+  }
+  .slide-num {
+    width: 44px; height: 44px; background: #16a34a; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800; flex-shrink: 0;
+  }
+  .slide-title { font-size: 26px; font-weight: 700; color: #fff; }
+  .slide-subtitle { font-size: 14px; color: #64748b; margin-top: 2px; }
+
+  .slide-body { display: flex; gap: 40px; flex: 1; align-items: center; }
+
+  .img-wrap { flex: 1.2; display: flex; align-items: center; justify-content: center; }
+  .img-wrap img {
+    max-width: 100%; max-height: 420px; border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 1px solid #334155;
+  }
+
+  .content-wrap { flex: 1; }
+
+  .step-list { list-style: none; }
+  .step-list li { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 18px; }
+  .step-num-item {
+    width: 32px; height: 32px; background: #166534; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; flex-shrink: 0; margin-top: 2px;
+  }
+  .step-text { font-size: 16px; color: #e2e8f0; line-height: 1.6; }
+  .step-text strong { color: #4ade80; }
+
+  .tip-box {
+    background: #14532d; border-left: 4px solid #16a34a;
+    border-radius: 8px; padding: 14px 18px; margin-top: 20px;
+  }
+  .tip-box p { font-size: 14px; color: #86efac; line-height: 1.6; }
+  .tip-box .tip-title { font-weight: 700; color: #4ade80; margin-bottom: 4px; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+  .info-card {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px;
+  }
+  .info-card .label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+  .info-card .value { font-size: 15px; color: #e2e8f0; font-weight: 600; }
+
+  .module-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .module-chip { padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+  .chip-yes { background: #166534; color: #86efac; }
+  .chip-opt { background: #1e3a5f; color: #93c5fd; border: 1px solid #2563eb; }
+  .chip-no  { background: #1e293b; color: #64748b; border: 1px solid #334155; }
+
+  .scope-card {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 10px;
+  }
+  .scope-card .scope-title { font-size: 14px; font-weight: 700; color: #4ade80; margin-bottom: 4px; }
+  .scope-card .scope-desc { font-size: 13px; color: #94a3b8; line-height: 1.5; }
+
+  /* End */
+  .slide-end {
+    align-items: center; justify-content: center; text-align: center;
+    background: linear-gradient(135deg, #14532d 0%, #0f172a 100%);
+  }
+  .slide-end .check { font-size: 72px; margin-bottom: 20px; }
+  .slide-end h2 { font-size: 36px; font-weight: 800; color: #86efac; margin-bottom: 12px; }
+  .slide-end p { font-size: 18px; color: #94a3b8; max-width: 540px; line-height: 1.7; }
+
+  /* Nav */
+  .nav {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 16px;
+    background: #1e293b; border: 1px solid #334155;
+    padding: 12px 24px; border-radius: 999px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .nav button {
+    background: #16a34a; color: #fff; border: none;
+    padding: 8px 20px; border-radius: 8px; font-size: 15px; cursor: pointer;
+    font-weight: 600; transition: background 0.2s;
+  }
+  .nav button:hover { background: #15803d; }
+  .nav button:disabled { background: #334155; color: #64748b; cursor: default; }
+  .nav .counter { font-size: 14px; color: #94a3b8; min-width: 60px; text-align: center; }
+
+  .dots { display: flex; gap: 6px; align-items: center; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #334155; transition: all 0.2s; }
+  .dot.active { background: #16a34a; width: 24px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="slideshow">
+
+  <!-- Slide 0: Cover -->
+  <div class="slide slide-cover active">
+    <div class="logo">CNY</div>
+    <h1>คู่มือการสร้าง Vendor User</h1>
+    <p class="subtitle">ฝั่ง Staff — CNY VMSS</p>
+    <p style="color:#64748b;font-size:15px;margin-top:8px;">วิธีเพิ่มบัญชีให้ตัวแทน/ผู้ขายเข้าใช้งานระบบ</p>
+    <span class="badge">Vendor User Management Guide v1.0</span>
+  </div>
+
+  <!-- Slide 1 -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-num">1</div>
+      <div>
+        <div class="slide-title">เข้าหน้า User Management</div>
+        <div class="slide-subtitle">จุดเริ่มต้นการสร้างบัญชี Vendor</div>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="img-wrap">
+        <img src="สร้าง Vendor ฝั่ง staff/1.PNG" alt="User Management">
+      </div>
+      <div class="content-wrap">
+        <ul class="step-list">
+          <li>
+            <div class="step-num-item">1</div>
+            <div class="step-text">Login ด้วย account <strong>Management หรือ Admin</strong></div>
+          </li>
+          <li>
+            <div class="step-num-item">2</div>
+            <div class="step-text">เมนูซ้าย → <strong>ADMINISTRATION</strong> → <strong>User Management</strong></div>
+          </li>
+          <li>
+            <div class="step-num-item">3</div>
+            <div class="step-text">ดูจำนวน Vendor ปัจจุบันใน <strong>Stats Card</strong> (ตัวอย่าง: 1 คน)</div>
+          </li>
+          <li>
+            <div class="step-num-item">4</div>
+            <div class="step-text">กดปุ่ม <strong>"สร้าง User ใหม่"</strong> มุมบนขวา</div>
+          </li>
+        </ul>
+        <div class="tip-box">
+          <div class="tip-title">💡 ข้อแตกต่างจาก Staff</div>
+          <p>Vendor ต้องเลือก <strong>"Vendor หลัก"</strong> ด้วยว่าเป็นตัวแทนของบริษัทใหน ส่วน Staff ไม่ต้องเลือก</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 2 -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-num">2</div>
+      <div>
+        <div class="slide-title">กรอกข้อมูล Vendor ใหม่</div>
+        <div class="slide-subtitle">ระบุข้อมูลและสิทธิ์การเข้าถึงข้อมูล</div>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="img-wrap">
+        <img src="สร้าง Vendor ฝั่ง staff/2.PNG" alt="Create Vendor Form">
+      </div>
+      <div class="content-wrap">
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="label">👤 ชื่อ-นามสกุล *</div>
+            <div class="value">ชื่อตัวแทน/เซลล์</div>
+          </div>
+          <div class="info-card">
+            <div class="label">🔑 รหัสผ่าน *</div>
+            <div class="value">อย่างน้อย 8 ตัวอักษร</div>
+          </div>
+          <div class="info-card">
+            <div class="label">🏷️ Role *</div>
+            <div class="value">เลือก "Vendor"</div>
+          </div>
+          <div class="info-card">
+            <div class="label">🏢 Vendor หลัก *</div>
+            <div class="value">เลือกบริษัทที่สังกัด</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <p style="font-size:13px;color:#94a3b8;margin-bottom:8px;">📦 Modules ที่แนะนำสำหรับ Vendor ทั่วไป:</p>
+          <div class="module-grid">
+            <span class="module-chip chip-yes">✓ RFQ</span>
+            <span class="module-chip chip-yes">✓ PO</span>
+            <span class="module-chip chip-yes">✓ GRN</span>
+            <span class="module-chip chip-yes">✓ Products</span>
+            <span class="module-chip chip-opt">± Promotions</span>
+            <span class="module-chip chip-no">Bills (เฉพาะวางบิล)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 2b: Scope -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-num">3</div>
+      <div>
+        <div class="slide-title">เลือก Scope (ขอบเขตข้อมูลที่เห็น)</div>
+        <div class="slide-subtitle">กำหนดว่า Vendor คนนี้เห็นข้อมูลของบริษัทใหนได้บ้าง</div>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="img-wrap">
+        <img src="สร้าง Vendor ฝั่ง staff/2.PNG" alt="Scope">
+      </div>
+      <div class="content-wrap">
+        <p style="font-size:14px;color:#94a3b8;margin-bottom:16px;">ขอบเขตการเข้าถึง Vendor (Scope) มี 3 แบบ:</p>
+
+        <div class="scope-card">
+          <div class="scope-title">🔵 เฉพาะ Vendor ตัวเอง (ปกติ)</div>
+          <div class="scope-desc">เห็นเฉพาะข้อมูลของบริษัทตัวเองเท่านั้น — ใช้สำหรับเซลล์/ตัวแทนทั่วไป</div>
+        </div>
+
+        <div class="scope-card">
+          <div class="scope-title">🟡 เลือก Vendor เฉพาะ</div>
+          <div class="scope-desc">เห็นข้อมูลของหลายบริษัทที่กำหนดไว้ — ใช้สำหรับตัวแทนที่ดูแลหลายสาขา</div>
+        </div>
+
+        <div class="scope-card">
+          <div class="scope-title">🟢 Parent + ทุก Vendor ในกลุ่ม</div>
+          <div class="scope-desc">เห็นทุก Vendor ในกลุ่มอัตโนมัติ — ใช้สำหรับ Admin ของบริษัทแม่</div>
+        </div>
+
+        <div class="tip-box">
+          <div class="tip-title">💡 แนะนำสำหรับ Vendor ทั่วไป</div>
+          <p>เลือก <strong>"เฉพาะ Vendor ตัวเอง"</strong> ไว้ก่อนเสมอ ปลอดภัยที่สุดครับ</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3 -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-num">4</div>
+      <div>
+        <div class="slide-title">ยืนยันผลลัพธ์</div>
+        <div class="slide-subtitle">ตรวจสอบว่าบัญชี Vendor ถูกสร้างสำเร็จ</div>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="img-wrap">
+        <img src="สร้าง Vendor ฝั่ง staff/3.PNG" alt="Result">
+      </div>
+      <div class="content-wrap">
+        <ul class="step-list">
+          <li>
+            <div class="step-num-item">✓</div>
+            <div class="step-text">จำนวน <strong>Vendor เพิ่มขึ้น</strong> ใน Stats Card (จาก 1 → 2)</div>
+          </li>
+          <li>
+            <div class="step-num-item">✓</div>
+            <div class="step-text">รายชื่อใหม่ขึ้นพร้อม badge <strong>สีเขียว "Vendor"</strong></div>
+          </li>
+          <li>
+            <div class="step-num-item">✓</div>
+            <div class="step-text">คอลัมน์ <strong>VENDOR</strong> แสดงชื่อบริษัทที่ผูกไว้ถูกต้อง</div>
+          </li>
+          <li>
+            <div class="step-num-item">✓</div>
+            <div class="step-text">สถานะแสดงเป็น <strong style="color:#86efac;">เปิดใช้</strong></div>
+          </li>
+        </ul>
+        <div class="tip-box">
+          <div class="tip-title">📲 หลังสร้างเสร็จ</div>
+          <p>แจ้ง Email + รหัสผ่านให้ตัวแทน Login ที่<br><strong>stg-vmss.cnyrxapp.com/login/vendor</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- End -->
+  <div class="slide slide-end">
+    <div class="check">✅</div>
+    <h2>สร้าง Vendor User เสร็จเรียบร้อย!</h2>
+    <p>ตัวแทน/เซลล์สามารถ Login เข้าระบบได้ทันที<br>และเห็นเฉพาะข้อมูลของบริษัทตัวเองตามที่กำหนด</p>
+  </div>
+
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button id="prev" onclick="changeSlide(-1)" disabled>◀ ก่อนหน้า</button>
+  <div class="dots" id="dots"></div>
+  <span class="counter" id="counter">1 / 6</span>
+  <button id="next" onclick="changeSlide(1)">ถัดไป ▶</button>
+</div>
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  const dotsEl = document.getElementById('dots');
+
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    d.style.cursor = 'pointer';
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('prev').disabled = current === 0;
+    document.getElementById('next').disabled = current === total - 1;
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' && current < total - 1) changeSlide(1);
+    if (e.key === 'ArrowLeft' && current > 0) changeSlide(-1);
+  });
+</script>
+</body>
+</html>
